@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duolingo Redesign — CA4 v2 Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g: #58CC02; --gd: #46a302; --gl: #d7f5c2;
+  --b: #1CB0F6; --bd: #0a91d1;
+  --o: #FF9600; --od: #c87200;
+  --r: #FF4B4B; --p: #CE82FF;
+  --y: #FFD900; --pk: #FF86C8;
+  --dk: #1D2040; --dk2: #2B3074;
+  --w: #FFFFFF; --ow: #F7FFF4;
+  --g1: #AFAFAF; --g2: #E5E5E5; --g3: #F5F5F5;
+  --sd: 0 4px 20px rgba(0,0,0,.10);
+  --sdh: 0 8px 36px rgba(0,0,0,.16);
+  --r1: 18px; --r2: 12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  font-family:'Nunito',sans-serif;
+  background: radial-gradient(ellipse at 20% 50%, #e8f5e9 0%, #e3f2fd 50%, #f3e5f5 100%);
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;
+}
+
+/* DESKTOP WRAP */
+.dw { display:flex; align-items:flex-start; gap:28px; max-width:1060px; margin:0 auto; }
+
+/* SIDEBAR */
+.sidebar {
+  width:215px; flex-shrink:0; padding-top:12px;
+  display:flex; flex-direction:column; gap:14px;
+}
+.sb-card { background:white; border-radius:var(--r1); padding:18px; box-shadow:var(--sd); }
+.sb-logo { display:flex; align-items:center; gap:9px; margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--g2); }
+.sb-logo .owl { font-size:26px; }
+.sb-logo .nm { font-size:18px; font-weight:900; color:var(--dk); }
+.sb-logo .nm span { color:var(--g); }
+.sb-sec { font-size:10px; font-weight:800; color:var(--g1); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:9px; }
+.sni {
+  display:flex; align-items:center; gap:9px;
+  padding:9px 11px; border-radius:12px; cursor:pointer;
+  transition:all .2s; margin-bottom:3px;
+}
+.sni:hover { background:var(--g3); transform:translateX(3px); }
+.sni.active { background:var(--gl); }
+.sni .si { font-size:17px; width:22px; text-align:center; }
+.sni .sl { font-size:13px; font-weight:700; color:var(--dk); }
+.sni.active .sl { color:var(--g); }
+.sni .sdot { width:7px; height:7px; border-radius:50%; background:var(--g); margin-left:auto; }
+.ai-badge {
+  background:linear-gradient(135deg,#7c3aed,#3b82f6);
+  border-radius:var(--r1); padding:14px; color:white;
+}
+.ai-badge .abt { font-size:10px; font-weight:800; opacity:.7; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+.ai-badge .abh { font-size:13px; font-weight:900; margin-bottom:8px; }
+.ai-feature { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; opacity:.85; margin-bottom:4px; }
+.ai-feature::before { content:'✦'; color:#a78bfa; font-size:10px; }
+
+.ca-card { background:linear-gradient(135deg,var(--dk),var(--dk2)); border-radius:var(--r1); padding:14px; color:white; }
+.ca-tag { font-size:10px; font-weight:800; color:var(--g); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+.ca-ti { font-size:12px; font-weight:800; margin-bottom:8px; line-height:1.4; }
+.ca-sc { display:flex; flex-direction:column; gap:4px; }
+.ca-s { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:rgba(255,255,255,.7); }
+.ca-s::before { content:'✓'; color:var(--g); font-weight:900; font-size:10px; }
+
+/* PHONE SHELL */
+.ph {
+  width:390px; height:820px; background:white;
+  border-radius:48px;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.6), 0 0 0 10px #1a1a2e, 0 0 0 12px rgba(255,255,255,.12), 0 40px 100px rgba(0,0,0,.28);
+  overflow:hidden; position:relative; display:flex; flex-direction:column; flex-shrink:0;
+}
+
+/* STATUS BAR */
+.stbar { background:var(--dk); display:flex; justify-content:space-between; align-items:center; padding:13px 26px 9px; flex-shrink:0; }
+.stbar .t { color:white; font-size:13px; font-weight:800; }
+.stbar .ic { color:white; font-size:12px; }
+
+/* SCREENS */
+.screen { display:none; flex:1; overflow:hidden; flex-direction:column; }
+.screen.active { display:flex; animation:scIn .32s cubic-bezier(.34,1.4,.64,1); }
+@keyframes scIn { from{opacity:0;transform:translateX(26px) scale(.975)} to{opacity:1;transform:none} }
+@keyframes fup { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+@keyframes scaleIn { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:none} }
+@keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes pg { 0%,100%{box-shadow:0 0 0 0 rgba(88,204,2,.5)} 50%{box-shadow:0 0 0 12px rgba(88,204,2,0)} }
+@keyframes po { 0%,100%{box-shadow:0 0 0 0 rgba(255,150,0,.45)} 50%{box-shadow:0 0 0 12px rgba(255,150,0,0)} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes typing { 0%{opacity:0;transform:translateY(4px)} 100%{opacity:1;transform:none} }
+@keyframes chatpop { from{opacity:0;transform:translateY(20px) scale(.9)} to{opacity:1;transform:none} }
+@keyframes orb { 0%,100%{transform:scale(1) translate(0,0)} 33%{transform:scale(1.1) translate(5px,-5px)} 66%{transform:scale(.95) translate(-4px,4px)} }
+
+.sbody { flex:1; overflow-y:auto; overflow-x:hidden; }
+.sbody::-webkit-scrollbar { width:0; }
+
+/* BOTTOM NAV */
+.bnav { display:flex; background:white; border-top:2px solid var(--g2); padding:8px 0 16px; flex-shrink:0; }
+.ni { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; transition:all .2s; padding:4px 0; }
+.ni .nio { font-size:22px; transition:transform .2s; }
+.ni .nil { font-size:10px; font-weight:800; color:var(--g1); }
+.ni.active .nil { color:var(--g); }
+.ni.active .nio { transform:scale(1.15); animation:bounce .4s ease; }
+.ni:hover { transform:translateY(-3px); }
+.ni:hover .nil { color:var(--g); }
+
+/* BUTTONS */
+.btn { display:flex; align-items:center; justify-content:center; padding:15px 24px; border-radius:16px; border:none; font-family:'Nunito',sans-serif; font-size:16px; font-weight:900; cursor:pointer; transition:all .18s; letter-spacing:.5px; width:100%; }
+.btn:active { transform:scale(.96) translateY(2px); }
+.btn-g { background:var(--g); color:white; box-shadow:0 5px 0 var(--gd); }
+.btn-g:hover { filter:brightness(1.07); transform:translateY(-2px); box-shadow:0 7px 0 var(--gd); }
+.btn-g:active { box-shadow:0 1px 0 var(--gd); transform:translateY(4px); }
+.btn-o { background:var(--o); color:white; box-shadow:0 5px 0 var(--od); }
+.btn-o:hover { filter:brightness(1.07); transform:translateY(-2px); box-shadow:0 7px 0 var(--od); }
+.btn-o:active { box-shadow:0 1px 0 var(--od); transform:translateY(4px); }
+.btn-b { background:var(--b); color:white; box-shadow:0 5px 0 var(--bd); }
+.btn-b:hover { filter:brightness(1.07); transform:translateY(-2px); }
+.btn-b:active { box-shadow:0 1px 0 var(--bd); transform:translateY(4px); }
+.btn-ai { background:linear-gradient(135deg,#7c3aed,#3b82f6); color:white; box-shadow:0 5px 0 #5b21b6; }
+.btn-ai:hover { filter:brightness(1.1); transform:translateY(-2px); }
+.btn-ai:active { box-shadow:0 1px 0 #5b21b6; transform:translateY(4px); }
+.btn-ghost { background:rgba(255,255,255,.12); color:white; border:2px solid rgba(255,255,255,.2); box-shadow:none; }
+.btn-ghost:hover { background:rgba(255,255,255,.2); }
+
+/* ═══ SCREEN 1: LOGIN ═══ */
+#sc-login { background:linear-gradient(170deg,#131630 0%,#1D2040 40%,#2B3074 80%,#1D2040 100%); }
+.orbs { position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none; overflow:hidden; }
+.orb { position:absolute; border-radius:50%; filter:blur(45px); opacity:.22; }
+.ob1 { width:220px; height:220px; background:var(--g); top:-70px; right:-70px; animation:orb 6s ease-in-out infinite; }
+.ob2 { width:160px; height:160px; background:var(--p); bottom:130px; left:-50px; animation:orb 8s ease-in-out infinite 2s; }
+.ob3 { width:120px; height:120px; background:var(--b); top:220px; right:20px; animation:orb 7s ease-in-out infinite 1s; }
+.ob4 { width:90px; height:90px; background:var(--pk); bottom:260px; right:60px; animation:orb 9s ease-in-out infinite 3s; }
+
+.lhero { display:flex; flex-direction:column; align-items:center; padding:38px 0 20px; position:relative; animation:fup .5s ease .05s both; }
+.owl-logo { width:86px; height:86px; background:linear-gradient(135deg,var(--g),#7ddb18); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:44px; box-shadow:0 10px 32px rgba(88,204,2,.45); animation:pg 2.5s infinite, float 3s ease-in-out infinite; margin-bottom:14px; }
+.anm { font-size:30px; font-weight:900; color:white; letter-spacing:-.5px; }
+.atg { font-size:13px; color:rgba(255,255,255,.5); margin-top:5px; font-weight:600; }
+.ai-tag-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(124,58,237,.3); border:1.5px solid rgba(124,58,237,.5); border-radius:20px; padding:4px 12px; margin-top:9px; font-size:11px; font-weight:800; color:#c4b5fd; }
+
+.lform { padding:8px 22px 0; position:relative; animation:fup .5s ease .18s both; }
+.tabrow { display:flex; background:rgba(255,255,255,.09); border:1.5px solid rgba(255,255,255,.12); border-radius:14px; padding:5px; margin-bottom:16px; gap:4px; }
+.tabbtn { flex:1; padding:10px; border:none; background:transparent; color:rgba(255,255,255,.5); font-family:'Nunito',sans-serif; font-size:14px; font-weight:800; border-radius:10px; cursor:pointer; transition:all .22s; }
+.tabbtn.active { background:var(--g); color:white; box-shadow:0 4px 14px rgba(88,204,2,.45); }
+.ig { margin-bottom:12px; }
+.il { color:rgba(255,255,255,.65); font-size:12px; font-weight:800; margin-bottom:6px; display:block; letter-spacing:.3px; }
+.inf { width:100%; padding:13px 15px; background:rgba(255,255,255,.09); border:2px solid rgba(255,255,255,.14); border-radius:14px; color:white; font-family:'Nunito',sans-serif; font-size:15px; font-weight:600; outline:none; transition:all .22s; }
+.inf::placeholder { color:rgba(255,255,255,.3); }
+.inf:focus { border-color:var(--g); background:rgba(88,204,2,.1); box-shadow:0 0 0 4px rgba(88,204,2,.15); }
+.flnk { text-align:right; margin:-4px 0 14px; }
+.flnk a { color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; }
+.flnk a:hover { color:var(--g); }
+.div { display:flex; align-items:center; gap:11px; margin:14px 0; }
+.dl { flex:1; height:1px; background:rgba(255,255,255,.12); }
+.dt { color:rgba(255,255,255,.35); font-size:11px; font-weight:800; }
+.sbtn { width:100%; padding:12px; border-radius:14px; border:2px solid rgba(255,255,255,.16); background:rgba(255,255,255,.07); color:white; font-family:'Nunito',sans-serif; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; transition:all .2s; margin-bottom:8px; }
+.sbtn:hover { background:rgba(255,255,255,.14); transform:translateY(-1px); }
+
+/* ═══ SCREEN 2: HOME ═══ */
+#sc-home { background:#f4f9f0; }
+.hhdr { background:var(--dk); padding:14px 18px 16px; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden; }
+.hhdr::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--g),var(--b),var(--p)); }
+.hlogo { display:flex; align-items:center; gap:8px; }
+.hlogo .ho { font-size:24px; }
+.hlogo .hn { font-size:20px; font-weight:900; color:white; }
+.hlogo .hn span { color:var(--g); }
+.hbdgs { display:flex; gap:7px; }
+.spill { display:flex; align-items:center; gap:5px; border-radius:20px; padding:5px 11px; font-size:13px; font-weight:800; }
+.stpil { background:rgba(255,150,0,.18); border:1.5px solid rgba(255,150,0,.4); }
+.stpil span { color:var(--o); }
+.xppil { background:rgba(88,204,2,.15); border:1.5px solid rgba(88,204,2,.3); }
+.xppil span { color:var(--g); }
+
+/* AI Banner */
+.ai-banner { margin:14px 14px 0; background:linear-gradient(135deg,#1e1b4b,#312e81,#1e40af); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:transform .2s; animation:fup .4s ease .05s both; }
+.ai-banner:hover { transform:translateY(-2px); }
+.ai-icon-wrap { width:42px; height:42px; background:rgba(139,92,246,.35); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; border:1.5px solid rgba(139,92,246,.5); }
+.ai-text .ait { font-size:13px; font-weight:900; color:white; }
+.ai-text .ais { font-size:11px; color:rgba(255,255,255,.6); font-weight:600; margin-top:2px; }
+.ai-arrow { color:rgba(255,255,255,.5); font-size:18px; margin-left:auto; }
+
+/* Daily goal */
+.dgcard { margin:12px 14px 0; background:white; border-radius:var(--r1); padding:16px; box-shadow:var(--sd); animation:fup .4s ease .08s both; border:1.5px solid rgba(88,204,2,.12); }
+.dgt { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:11px; }
+.dgtl { font-size:14px; font-weight:900; color:var(--dk); }
+.dgts { font-size:11px; color:var(--g1); font-weight:600; margin-top:2px; }
+.dgxp { font-size:20px; font-weight:900; color:var(--g); }
+.dgxpl { font-size:10px; color:var(--g1); font-weight:700; text-align:right; }
+.ptrack { height:12px; background:var(--g2); border-radius:7px; overflow:hidden; }
+.pfill { height:100%; background:linear-gradient(90deg,var(--g),#8fe01a); border-radius:7px; width:65%; position:relative; overflow:hidden; }
+.pfill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent); animation:shimmer 2s infinite; background-size:300px 100%; }
+.glbls { display:flex; justify-content:space-between; margin-top:5px; }
+.glbls span { font-size:11px; color:var(--g1); font-weight:700; }
+
+/* Courses banner */
+.cx-banner { margin:12px 14px 0; background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius:16px; overflow:hidden; cursor:pointer; transition:transform .2s; animation:fup .4s ease .12s both; }
+.cx-banner:hover { transform:translateY(-2px); }
+.cx-inner { padding:14px 16px; display:flex; align-items:center; gap:12px; }
+.cx-emoji { font-size:32px; }
+.cx-text .cxt { font-size:14px; font-weight:900; color:white; }
+.cx-text .cxs { font-size:11px; color:rgba(255,255,255,.6); font-weight:600; margin-top:2px; }
+.cx-langs { display:flex; gap:5px; padding:8px 16px; background:rgba(255,255,255,.06); border-top:1px solid rgba(255,255,255,.08); }
+.cxl { font-size:18px; }
+
+/* Section title */
+.stl { padding:14px 14px 8px; font-size:15px; font-weight:900; color:var(--dk); display:flex; align-items:center; gap:7px; }
+.stbdg { background:var(--gl); color:var(--g); border-radius:8px; padding:2px 8px; font-size:11px; font-weight:800; }
+
+/* Lesson path */
+.lpath { padding:0 14px; }
+.uhdr { background:linear-gradient(90deg,var(--dk),var(--dk2)); border-radius:14px 14px 0 0; padding:12px 15px; display:flex; align-items:center; gap:9px; }
+.ubdg { background:var(--g); color:white; border-radius:7px; padding:3px 10px; font-size:10px; font-weight:900; letter-spacing:.5px; }
+.uti { color:white; font-size:13px; font-weight:800; }
+.udsc { color:rgba(255,255,255,.5); font-size:11px; margin-left:auto; font-weight:600; }
+.lnodes { background:white; border-radius:0 0 14px 14px; padding:16px 14px; display:flex; flex-direction:column; align-items:center; gap:0; box-shadow:var(--sd); }
+.lnode { width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:23px; cursor:pointer; transition:all .2s; border:3px solid transparent; box-shadow:0 5px 0 rgba(0,0,0,.12); }
+.lnode:hover { transform:scale(1.1); }
+.lnode:active { transform:scale(.93) translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.12); }
+.lnode.done { background:var(--g); border-color:var(--gd); }
+.lnode.curr { background:var(--b); border-color:var(--bd); animation:pg 2.2s infinite; }
+.lnode.lkd { background:var(--g2); border-color:#ccc; cursor:not-allowed; opacity:.6; }
+.lconn { width:3px; height:18px; border-radius:2px; margin:4px 0; }
+.lconn.dn { background:var(--g); }
+.lconn.pd { background:var(--g2); }
+
+/* Quick actions */
+.qgrid { display:grid; grid-template-columns:1fr 1fr; gap:11px; padding:0 14px; }
+.qcard { background:white; border-radius:var(--r1); padding:15px; cursor:pointer; box-shadow:var(--sd); transition:all .22s; display:flex; flex-direction:column; gap:6px; border:1.5px solid transparent; animation:fup .4s ease both; }
+.qcard:nth-child(1){animation-delay:.1s} .qcard:nth-child(2){animation-delay:.15s}
+.qcard:nth-child(3){animation-delay:.2s} .qcard:nth-child(4){animation-delay:.25s}
+.qcard:hover { transform:translateY(-4px); box-shadow:var(--sdh); border-color:var(--g2); }
+.qcard:active { transform:scale(.96); }
+.qci { font-size:26px; }
+.qct { font-size:13px; font-weight:900; color:var(--dk); }
+.qcs { font-size:11px; color:var(--g1); font-weight:600; }
+.gc { background:linear-gradient(135deg,#58CC02,#8fe01a); border-color:transparent!important; }
+.gc .qct,.gc .qcs { color:white; }
+.bc { background:linear-gradient(135deg,#1CB0F6,#64d1f9); border-color:transparent!important; }
+.bc .qct,.bc .qcs { color:white; }
+.pc { background:linear-gradient(135deg,#7c3aed,#a78bfa); border-color:transparent!important; }
+.pc .qct,.pc .qcs { color:white; }
+
+/* ═══ SCREEN 3: COURSES ═══ */
+#sc-courses { background:#f4f9f0; }
+.cx-hdr { background:linear-gradient(135deg,#0f172a,#1e3a5f); padding:20px 18px 24px; position:relative; overflow:hidden; }
+.cx-hdr::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 80% 20%,rgba(59,130,246,.3),transparent 55%); }
+.cx-title { font-size:22px; font-weight:900; color:white; margin-bottom:4px; position:relative; z-index:1; }
+.cx-sub { font-size:13px; color:rgba(255,255,255,.6); font-weight:600; position:relative; z-index:1; }
+.level-tabs { display:flex; gap:8px; margin-top:14px; position:relative; z-index:1; overflow-x:auto; padding-bottom:2px; }
+.level-tabs::-webkit-scrollbar { height:0; }
+.ltab { padding:7px 16px; border-radius:20px; font-size:12px; font-weight:800; cursor:pointer; border:1.5px solid rgba(255,255,255,.2); color:rgba(255,255,255,.6); background:rgba(255,255,255,.08); white-space:nowrap; transition:all .2s; }
+.ltab.active { background:var(--g); border-color:var(--g); color:white; box-shadow:0 4px 12px rgba(88,204,2,.4); }
+.search-box { margin:14px 14px 0; position:relative; }
+.search-inp { width:100%; padding:12px 14px 12px 42px; border:2px solid var(--g2); border-radius:14px; font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--dk); outline:none; background:white; transition:all .2s; }
+.search-inp:focus { border-color:var(--b); box-shadow:0 0 0 4px rgba(28,176,246,.12); }
+.search-ico { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--g1); }
+.lang-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:12px 14px; }
+.langcard {
+  background:white; border-radius:14px; padding:14px 10px;
+  text-align:center; cursor:pointer; box-shadow:var(--sd);
+  border:2.5px solid transparent; transition:all .22s;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+.langcard:hover { transform:translateY(-4px); box-shadow:var(--sdh); border-color:var(--g2); }
+.langcard.selected { border-color:var(--g); background:rgba(88,204,2,.05); }
+.langcard .lflag { font-size:30px; }
+.langcard .lname { font-size:12px; font-weight:900; color:var(--dk); }
+.langcard .llearners { font-size:10px; color:var(--g1); font-weight:600; }
+.langcard .lpop { font-size:10px; font-weight:800; color:var(--o); }
+.path-preview { margin:2px 14px 0; background:white; border-radius:14px; padding:16px; box-shadow:var(--sd); }
+.pp-title { font-size:13px; font-weight:900; color:var(--dk); margin-bottom:12px; }
+.pp-steps { display:flex; flex-direction:column; gap:8px; }
+.pp-step { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; background:var(--g3); }
+.pp-step.active { background:var(--gl); }
+.pp-step .psi { font-size:18px; }
+.pp-step .pst { font-size:12px; font-weight:800; color:var(--dk); }
+.pp-step .pss { font-size:11px; color:var(--g1); font-weight:600; }
+.pp-step .psp { margin-left:auto; }
+.psp-bar { width:50px; height:6px; background:var(--g2); border-radius:3px; overflow:hidden; }
+.psp-fill { height:100%; background:var(--g); border-radius:3px; }
+
+/* ═══ SCREEN 4: LESSON ═══ */
+#sc-lesson { background:#f4f9f0; }
+.ltop { background:white; padding:12px 17px; display:flex; align-items:center; gap:11px; box-shadow:0 2px 12px rgba(0,0,0,.07); flex-shrink:0; }
+.backbtn { width:36px; height:36px; border-radius:50%; background:var(--g3); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; transition:all .2s; font-weight:800; color:var(--g1); flex-shrink:0; }
+.backbtn:hover { background:var(--g); color:white; transform:scale(1.05); }
+.lpw { flex:1; }
+.lplbl { font-size:10px; font-weight:800; color:var(--g1); margin-bottom:4px; }
+.lptrack { height:10px; background:var(--g2); border-radius:6px; overflow:hidden; }
+.lpfill { height:100%; background:linear-gradient(90deg,var(--g),#8fe01a); border-radius:6px; width:var(--p,40%); transition:width .5s cubic-bezier(.34,1.4,.64,1); }
+.hrow { display:flex; gap:3px; }
+.heart { font-size:18px; filter:drop-shadow(0 2px 4px rgba(255,75,75,.3)); }
+
+.lbody { padding:16px; flex:1; display:flex; flex-direction:column; gap:14px; }
+.qchip { display:inline-flex; align-items:center; gap:6px; background:var(--gl); color:var(--g); border-radius:20px; padding:5px 12px; font-size:11px; font-weight:900; letter-spacing:.5px; width:fit-content; }
+.qti { font-size:20px; font-weight:900; color:var(--dk); line-height:1.35; }
+.cbubble { background:white; border-radius:var(--r1); padding:15px; display:flex; align-items:flex-start; gap:11px; box-shadow:var(--sd); border:1.5px solid rgba(28,176,246,.15); animation:scaleIn .35s ease; }
+.cavt { width:52px; height:52px; background:linear-gradient(135deg,var(--g),#8fe01a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; box-shadow:0 4px 12px rgba(88,204,2,.35); }
+.cnm { font-size:10px; font-weight:800; color:var(--g1); margin-bottom:3px; }
+.ctxt { font-size:17px; font-weight:700; color:var(--dk); line-height:1.4; }
+.ctxt .hl { color:var(--b); font-weight:900; }
+.ctxt .th { font-size:12px; color:var(--g1); font-weight:600; margin-top:3px; display:block; }
+.abtn { background:var(--b); border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:white; box-shadow:0 3px 8px rgba(28,176,246,.4); transition:all .2s; flex-shrink:0; margin-top:8px; }
+.abtn:hover { transform:scale(1.1); }
+.ogrid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.ocard { background:white; border:2.5px solid var(--g2); border-radius:13px; padding:13px 11px; cursor:pointer; text-align:center; font-size:14px; font-weight:800; color:var(--dk); transition:all .18s; box-shadow:0 3px 0 var(--g2); line-height:1.3; }
+.ocard:hover { border-color:var(--b); box-shadow:0 3px 0 var(--bd); transform:translateY(-2px); }
+.ocard.sel { border-color:var(--b); background:rgba(28,176,246,.08); box-shadow:0 3px 0 var(--bd); }
+.ocard.correct { border-color:var(--g); background:rgba(88,204,2,.1); box-shadow:0 3px 0 var(--gd); color:var(--g); }
+.ocard.wrong { border-color:var(--r); background:rgba(255,75,75,.08); box-shadow:0 3px 0 #cc0000; color:var(--r); }
+.fbar { border-radius:14px; padding:13px 15px; display:flex; align-items:center; gap:11px; display:none; animation:fup .3s ease; }
+.fbar.show { display:flex; }
+.fbar.corfb { background:rgba(88,204,2,.12); border:2px solid rgba(88,204,2,.3); }
+.fbar.wrgfb { background:rgba(255,75,75,.08); border:2px solid rgba(255,75,75,.25); }
+.fbico { font-size:22px; }
+.fbmsg { font-size:14px; font-weight:700; color:var(--dk); }
+.fbmsg b { font-weight:900; }
+
+/* AI HINT */
+.ai-hint-box { background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(59,130,246,.1)); border:1.5px solid rgba(124,58,237,.25); border-radius:14px; padding:12px 14px; display:flex; align-items:flex-start; gap:10px; }
+.ahico { font-size:20px; flex-shrink:0; }
+.ahtxt { font-size:12px; font-weight:700; color:var(--dk); line-height:1.5; }
+.ahtxt .ahlbl { font-size:10px; font-weight:900; color:#7c3aed; text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; }
+
+/* ═══ SCREEN 5: PROFILE ═══ */
+#sc-profile { background:#f4f9f0; }
+.phdr { background:linear-gradient(160deg,var(--dk),var(--dk2)); padding:22px 18px 18px; position:relative; overflow:hidden; }
+.phdr::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 80% 20%,rgba(88,204,2,.2),transparent 55%); }
+.phdt { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; position:relative; z-index:1; }
+.pavw { display:flex; align-items:center; gap:13px; }
+.pav { width:70px; height:70px; background:linear-gradient(135deg,var(--g),#8fe01a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:36px; border:3px solid rgba(255,255,255,.3); box-shadow:0 6px 20px rgba(0,0,0,.3); }
+.pinf .pnm { font-size:17px; font-weight:900; color:white; }
+.pinf .pun { font-size:12px; color:rgba(255,255,255,.55); font-weight:700; margin-top:2px; }
+.pinf .psn { font-size:11px; color:rgba(255,255,255,.4); font-weight:600; margin-top:2px; }
+.edbtn { background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); border-radius:10px; padding:7px 13px; color:white; font-size:12px; font-weight:800; cursor:pointer; transition:all .2s; font-family:'Nunito',sans-serif; }
+.edbtn:hover { background:rgba(255,255,255,.2); }
+.lbdg { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.1); border-radius:12px; padding:9px 13px; position:relative; z-index:1; }
+.lfl { font-size:19px; }
+.linf .lnm { font-size:13px; font-weight:800; color:white; }
+.linf .llv { font-size:11px; color:rgba(255,255,255,.55); font-weight:600; }
+.lprog { flex:1; }
+.lpt { height:7px; background:rgba(255,255,255,.15); border-radius:4px; overflow:hidden; }
+.lpf { height:100%; background:var(--g); border-radius:4px; width:58%; }
+.lpct { font-size:11px; color:var(--g); font-weight:800; text-align:right; margin-top:3px; }
+.srow { display:flex; gap:9px; padding:14px 14px 0; animation:fup .4s ease .05s both; }
+.sc { flex:1; background:white; border-radius:var(--r1); padding:13px 9px; text-align:center; box-shadow:var(--sd); }
+.sc .sci { font-size:20px; margin-bottom:4px; }
+.sc .scv { font-size:19px; font-weight:900; color:var(--dk); }
+.sc .scl { font-size:10px; font-weight:800; color:var(--g1); margin-top:1px; }
+.sc.or .scv{color:var(--o)} .sc.gr .scv{color:var(--g)} .sc.pp .scv{color:var(--p)}
+
+/* Calendar */
+.scal { margin:13px 14px 0; background:white; border-radius:var(--r1); padding:15px; box-shadow:var(--sd); animation:fup .4s ease .1s both; }
+.calh { display:flex; justify-content:space-between; align-items:center; margin-bottom:11px; }
+.calt { font-size:14px; font-weight:900; color:var(--dk); }
+.calm { font-size:12px; font-weight:700; color:var(--g1); }
+.calgrid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cday { aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--g1); }
+.cday.dn { background:var(--g); color:white; }
+.cday.td { background:var(--o); color:white; box-shadow:0 2px 8px rgba(255,150,0,.4); }
+.cday.em { color:var(--g2); }
+
+/* Badges */
+.bdgwrap { padding:0 14px; animation:fup .4s ease .15s both; }
+.bdggrid { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
+.bdgi { background:white; border-radius:13px; padding:11px 7px; text-align:center; box-shadow:var(--sd); cursor:pointer; transition:all .2s; border:2px solid transparent; }
+.bdgi:hover { transform:translateY(-3px) scale(1.04); border-color:var(--y); }
+.bdgi.lkd { opacity:.4; filter:grayscale(1); }
+.bdgi .be { font-size:24px; margin-bottom:4px; }
+.bdgi .bn { font-size:9px; font-weight:800; color:var(--dk); }
+
+/* Settings */
+.stlist { margin:0 14px; background:white; border-radius:var(--r1); overflow:hidden; box-shadow:var(--sd); animation:fup .4s ease .2s both; }
+.sti { display:flex; align-items:center; gap:11px; padding:13px 15px; border-bottom:1px solid var(--g2); cursor:pointer; transition:background .15s; }
+.sti:last-child { border-bottom:none; }
+.sti:hover { background:var(--g3); }
+.stico { width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.stxt { flex:1; }
+.stnm { font-size:14px; font-weight:800; color:var(--dk); }
+.stds { font-size:11px; color:var(--g1); font-weight:600; margin-top:1px; }
+.starr { color:var(--g1); font-size:17px; font-weight:800; }
+.sttog { width:38px; height:21px; border-radius:11px; background:var(--g); position:relative; cursor:pointer; }
+.sttog::after { content:''; position:absolute; top:2.5px; right:2.5px; width:16px; height:16px; border-radius:50%; background:white; }
+
+/* ═══ SCREEN 6: PLUS ═══ */
+#sc-plus { background:#f4f9f0; }
+.plhero { background:linear-gradient(160deg,#1a1a2e,#2B3074,#16213e); padding:26px 18px 32px; text-align:center; position:relative; overflow:hidden; }
+.plhero::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 75% 25%,rgba(206,130,255,.25),transparent 55%),radial-gradient(circle at 20% 75%,rgba(88,204,2,.18),transparent 50%); }
+.plbk { position:absolute; top:15px; left:15px; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-size:17px; color:white; cursor:pointer; transition:all .2s; z-index:2; }
+.plbk:hover { background:rgba(255,255,255,.22); }
+.plcrown { width:70px; height:70px; background:linear-gradient(135deg,var(--o),#ffb84d); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:35px; margin:0 auto 13px; box-shadow:0 10px 30px rgba(255,150,0,.5); animation:po 2.5s infinite, float 3.5s ease-in-out infinite; position:relative; z-index:1; }
+.plti { font-size:27px; font-weight:900; color:white; position:relative; z-index:1; }
+.plsb { font-size:13px; color:rgba(255,255,255,.6); margin-top:5px; font-weight:600; position:relative; z-index:1; }
+.pltb { display:inline-flex; align-items:center; gap:5px; background:rgba(88,204,2,.2); border:1.5px solid rgba(88,204,2,.4); border-radius:20px; padding:4px 13px; margin-top:11px; font-size:12px; font-weight:800; color:var(--g); position:relative; z-index:1; }
+.ftlist { margin:14px 14px 0; display:flex; flex-direction:column; gap:9px; }
+.fti { background:white; border-radius:13px; padding:13px 15px; display:flex; align-items:center; gap:12px; box-shadow:var(--sd); animation:fup .4s ease both; border:1.5px solid transparent; transition:border-color .2s; }
+.fti:hover { border-color:var(--g2); }
+.fti:nth-child(1){animation-delay:.05s} .fti:nth-child(2){animation-delay:.1s} .fti:nth-child(3){animation-delay:.15s} .fti:nth-child(4){animation-delay:.2s}
+.fico { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:21px; flex-shrink:0; }
+.fnm { font-size:14px; font-weight:900; color:var(--dk); }
+.fds { font-size:12px; color:var(--g1); font-weight:600; margin-top:2px; }
+.fchk { margin-left:auto; font-size:19px; }
+.plcards { padding:14px 14px 0; display:flex; flex-direction:column; gap:9px; }
+.plcard { background:white; border-radius:var(--r1); padding:15px; border:2.5px solid var(--g2); cursor:pointer; transition:all .22s; position:relative; box-shadow:var(--sd); }
+.plcard:hover { border-color:var(--o); transform:translateY(-2px); }
+.plcard.sel { border-color:var(--o); background:rgba(255,150,0,.04); box-shadow:0 4px 20px rgba(255,150,0,.2); }
+.bstv { position:absolute; top:-12px; right:13px; background:linear-gradient(90deg,var(--o),#ffb84d); color:white; border-radius:20px; padding:3px 11px; font-size:10px; font-weight:900; letter-spacing:.5px; }
+.plrow { display:flex; justify-content:space-between; align-items:center; }
+.plleft { display:flex; align-items:center; gap:11px; }
+.plradio { width:21px; height:21px; border-radius:50%; border:2.5px solid var(--g2); flex-shrink:0; transition:all .22s; display:flex; align-items:center; justify-content:center; }
+.plcard.sel .plradio { border-color:var(--o); background:var(--o); }
+.plcard.sel .plradio::after { content:'✓'; color:white; font-size:11px; font-weight:900; }
+.plnm { font-size:15px; font-weight:900; color:var(--dk); }
+.plds { font-size:11px; color:var(--g1); font-weight:600; margin-top:2px; }
+.plpr { font-size:21px; font-weight:900; color:var(--o); }
+.plpr small { font-size:12px; font-weight:700; color:var(--g1); }
+.paysec { padding:14px 14px 0; }
+.paytl { font-size:14px; font-weight:900; color:var(--dk); margin-bottom:11px; }
+.paymths { display:flex; gap:7px; margin-bottom:13px; }
+.paym { flex:1; background:white; border-radius:11px; border:2.5px solid var(--g2); padding:10px 7px; display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; font-size:13px; font-weight:800; color:var(--dk); transition:all .2s; }
+.paym.active { border-color:var(--o); color:var(--o); background:rgba(255,150,0,.06); }
+.paym:hover { border-color:var(--o); }
+.cfields { display:flex; flex-direction:column; gap:9px; }
+.cinp { width:100%; padding:12px 13px; border:2px solid var(--g2); border-radius:12px; font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; outline:none; transition:all .2s; color:var(--dk); background:white; }
+.cinp:focus { border-color:var(--o); box-shadow:0 0 0 4px rgba(255,150,0,.12); }
+.crow { display:flex; gap:9px; }
+.crow .cinp { flex:1; }
+.secnote { display:flex; align-items:center; gap:6px; padding:10px 13px; background:var(--gl); border-radius:11px; margin-top:11px; margin-bottom:13px; }
+.secnote span { font-size:12px; font-weight:700; color:#2d8500; }
+
+/* ═══ FLOATING DUO CHAT ═══ */
+.duo-fab { position:absolute; bottom:76px; right:14px; width:52px; height:52px; background:linear-gradient(135deg,var(--g),#8fe01a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; box-shadow:0 6px 20px rgba(88,204,2,.5); transition:all .22s; z-index:150; border:none; animation:pg 3s infinite; }
+.duo-fab:hover { transform:scale(1.1); }
+.duo-fab .fab-badge { position:absolute; top:-3px; right:-3px; width:18px; height:18px; background:var(--r); border-radius:50%; border:2px solid white; display:flex; align-items:center; justify-content:center; font-size:10px; color:white; font-weight:900; }
+.duo-chat { position:absolute; bottom:138px; right:14px; width:290px; background:white; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,.2); z-index:160; display:none; flex-direction:column; overflow:hidden; max-height:400px; }
+.duo-chat.open { display:flex; animation:chatpop .32s cubic-bezier(.34,1.4,.64,1); }
+.dch-hdr { background:linear-gradient(135deg,var(--dk),var(--dk2)); padding:12px 14px; display:flex; align-items:center; gap:9px; flex-shrink:0; }
+.dch-av { width:36px; height:36px; background:linear-gradient(135deg,var(--g),#8fe01a); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:19px; }
+.dch-nm { font-size:13px; font-weight:900; color:white; }
+.dch-st { font-size:11px; color:rgba(255,255,255,.5); font-weight:600; }
+.dch-cls { background:rgba(255,255,255,.15); border:none; border-radius:50%; width:28px; height:28px; color:white; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-left:auto; font-family:'Nunito',sans-serif; }
+.dch-msgs { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; background:#f8fffe; }
+.dch-msgs::-webkit-scrollbar { width:0; }
+.msg { max-width:80%; padding:9px 12px; border-radius:14px; font-size:13px; font-weight:700; line-height:1.45; animation:typing .25s ease; }
+.msg.duo { background:white; color:var(--dk); border-radius:14px 14px 14px 3px; box-shadow:0 2px 8px rgba(0,0,0,.08); align-self:flex-start; border:1.5px solid var(--g2); }
+.msg.user { background:linear-gradient(135deg,var(--g),#8fe01a); color:white; border-radius:14px 14px 3px 14px; align-self:flex-end; box-shadow:0 2px 8px rgba(88,204,2,.3); }
+.msg-ts { font-size:10px; color:var(--g1); font-weight:600; margin-top:2px; }
+.dch-suggs { display:flex; gap:6px; padding:8px 12px; overflow-x:auto; background:white; border-top:1px solid var(--g2); flex-shrink:0; }
+.dch-suggs::-webkit-scrollbar { height:0; }
+.sugg-chip { background:var(--gl); color:var(--g); border:1.5px solid rgba(88,204,2,.3); border-radius:20px; padding:5px 10px; font-size:11px; font-weight:800; cursor:pointer; white-space:nowrap; transition:all .2s; flex-shrink:0; }
+.sugg-chip:hover { background:var(--g); color:white; }
+.dch-inp-row { display:flex; align-items:center; gap:7px; padding:9px 12px; border-top:1px solid var(--g2); background:white; flex-shrink:0; }
+.dch-inp { flex:1; border:1.5px solid var(--g2); border-radius:20px; padding:8px 13px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:600; color:var(--dk); outline:none; transition:border-color .2s; }
+.dch-inp:focus { border-color:var(--g); }
+.dch-send { width:32px; height:32px; background:var(--g); border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; transition:all .2s; box-shadow:0 3px 8px rgba(88,204,2,.4); }
+.dch-send:hover { transform:scale(1.1); }
+.typing-dots { display:flex; gap:4px; align-items:center; padding:4px 0; }
+.typing-dots span { width:7px; height:7px; border-radius:50%; background:var(--g1); animation:tdot 1.2s infinite; }
+.typing-dots span:nth-child(2){animation-delay:.2s} .typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes tdot { 0%,80%,100%{transform:scale(.8);opacity:.5} 40%{transform:scale(1.1);opacity:1} }
+
+/* TOAST */
+.toast { position:absolute; bottom:85px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--dk); color:white; padding:10px 20px; border-radius:22px; font-size:13px; font-weight:800; pointer-events:none; opacity:0; transition:opacity .28s,transform .28s; white-space:nowrap; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  .sidebar{display:none}
+  body{padding:0;background:white}
+  .ph{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="dw">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-card">
+      <div class="sb-logo">
+        <span class="owl">🦉</span>
+        <span class="nm">duo<span>lingo</span></span>
+      </div>
+      <div class="sb-sec">Screens</div>
+      <div class="sni" onclick="goTo('login');sa(this)"><span class="si">🔐</span><span class="sl">Login</span></div>
+      <div class="sni active" onclick="goTo('home');sa(this)"><span class="si">🏠</span><span class="sl">Home</span><span class="sdot"></span></div>
+      <div class="sni" onclick="goTo('courses');sa(this)"><span class="si">🌍</span><span class="sl">Courses</span></div>
+      <div class="sni" onclick="goTo('lesson');sa(this)"><span class="si">📚</span><span class="sl">Lesson</span></div>
+      <div class="sni" onclick="goTo('profile');sa(this)"><span class="si">👤</span><span class="sl">Profile</span></div>
+      <div class="sni" onclick="goTo('plus');sa(this)"><span class="si">⭐</span><span class="sl">Duo Plus</span></div>
+    </div>
+    <div class="ai-badge">
+      <div class="abt">✦ AI Features</div>
+      <div class="abh">Powered by Duo AI</div>
+      <div class="ai-feature">Smart hint system</div>
+      <div class="ai-feature">Personalized paths</div>
+      <div class="ai-feature">Floating Duo chat</div>
+      <div class="ai-feature">AI pronunciation check</div>
+      <div class="ai-feature">Adaptive difficulty</div>
+    </div>
+    <div class="ca-card">
+      <div class="ca-tag">IXD802 — CA4</div>
+      <div class="ca-ti">High-Fidelity Interactive Prototype</div>
+      <div class="ca-sc">
+        <div class="ca-s">Login / Signup</div>
+        <div class="ca-s">Home / Dashboard</div>
+        <div class="ca-s">Courses (New!) 🆕</div>
+        <div class="ca-s">Lesson Detail</div>
+        <div class="ca-s">Profile / Settings</div>
+        <div class="ca-s">Duolingo Plus</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE SHELL -->
+  <div class="ph">
+    <div class="stbar">
+      <span class="t">9:41</span>
+      <div style="display:flex;gap:5px">
+        <span class="ic">📶</span><span class="ic">🔋</span>
+      </div>
+    </div>
+
+    <!-- ══ LOGIN ══ -->
+    <div id="sc-login" class="screen active">
+      <div class="orbs"><div class="orb ob1"></div><div class="orb ob2"></div><div class="orb ob3"></div><div class="orb ob4"></div></div>
+      <div class="sbody" style="background:transparent">
+        <div class="lhero">
+          <div class="owl-logo">🦉</div>
+          <div class="anm">duolingo</div>
+          <div class="atg">Learn a language. Free. Forever.</div>
+          <div class="ai-tag-badge">✦ Now with Duo AI</div>
+        </div>
+        <div class="lform">
+          <div class="tabrow">
+            <button class="tabbtn active" id="tl" onclick="switchTab('login')">Log In</button>
+            <button class="tabbtn" id="ts" onclick="switchTab('signup')">Sign Up</button>
+          </div>
+          <div id="lf">
+            <div class="ig"><label class="il">Email or Username</label><input type="email" class="inf" placeholder="you@example.com" value="anvesh@duolingo.com"></div>
+            <div class="ig"><label class="il">Password</label><input type="password" class="inf" placeholder="••••••••" value="password123"></div>
+            <div class="flnk"><a>Forgot password?</a></div>
+            <button class="btn btn-g" onclick="doLogin()">LOG IN →</button>
+          </div>
+          <div id="sf" style="display:none">
+            <div class="ig"><label class="il">Full Name</label><input type="text" class="inf" placeholder="Your full name"></div>
+            <div class="ig"><label class="il">Email</label><input type="email" class="inf" placeholder="you@example.com"></div>
+            <div class="ig"><label class="il">Password</label><input type="password" class="inf" placeholder="Create a strong password"></div>
+            <button class="btn btn-g" onclick="doLogin()">CREATE ACCOUNT →</button>
+          </div>
+          <div class="div"><div class="dl"></div><div class="dt">OR CONTINUE WITH</div><div class="dl"></div></div>
+          <button class="sbtn" onclick="doLogin()"><span style="font-size:19px;font-weight:900;color:#EA4335">G</span> Continue with Google</button>
+          <button class="sbtn" onclick="doLogin()"><span style="font-size:19px">🍎</span> Continue with Apple</button>
+          <button class="sbtn" onclick="doLogin()" style="border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.1)"><span style="font-size:16px">✦</span> <span style="color:#c4b5fd">Sign in with Duo AI</span></button>
+          <div style="height:22px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HOME ══ -->
+    <div id="sc-home" class="screen">
+      <div class="hhdr">
+        <div class="hlogo"><span class="ho">🦉</span><span class="hn">duo<span>lingo</span></span></div>
+        <div class="hbdgs">
+          <div class="spill stpil"><span>🔥</span><span>47</span></div>
+          <div class="spill xppil"><span>⚡</span><span>1240</span></div>
+        </div>
+      </div>
+      <div class="sbody">
+        <!-- AI Banner -->
+        <div class="ai-banner" onclick="openChat()">
+          <div class="ai-icon-wrap">✦</div>
+          <div class="ai-text">
+            <div class="ait">Duo AI is ready to help!</div>
+            <div class="ais">Get hints, tips & practice partners</div>
+          </div>
+          <div class="ai-arrow">›</div>
+        </div>
+
+        <!-- Daily Goal -->
+        <div class="dgcard">
+          <div class="dgt">
+            <div><div class="dgtl">Daily Goal</div><div class="dgts">You're crushing it! 💪</div></div>
+            <div><div class="dgxp">65 XP</div><div class="dgxpl">of 100 XP</div></div>
+          </div>
+          <div class="ptrack"><div class="pfill"></div></div>
+          <div class="glbls"><span>🎯 Keep going!</span><span>35 XP left</span></div>
+        </div>
+
+        <!-- Courses Banner -->
+        <div class="cx-banner" onclick="goTo('courses');sa(null,'courses')">
+          <div class="cx-inner">
+            <span class="cx-emoji">🌍</span>
+            <div class="cx-text">
+              <div class="cxt">Explore All Courses</div>
+              <div class="cxs">40+ languages · Beginner to Advanced</div>
+            </div>
+            <div style="color:rgba(255,255,255,.5);font-size:18px">›</div>
+          </div>
+          <div class="cx-langs">
+            <span class="cxl">🇪🇸</span><span class="cxl">🇫🇷</span><span class="cxl">🇯🇵</span>
+            <span class="cxl">🇩🇪</span><span class="cxl">🇰🇷</span><span class="cxl">🇮🇳</span>
+            <span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.5);margin-left:auto;align-self:center">+34 more</span>
+          </div>
+        </div>
+
+        <!-- Lesson Path -->
+        <div class="stl">📚 Lesson Path <span class="stbdg">UNIT 1</span></div>
+        <div class="lpath">
+          <div class="uhdr">
+            <div class="ubdg">BASICS</div>
+            <div class="uti">Fundamentals of Spanish</div>
+            <div class="udsc">3/5 done</div>
+          </div>
+          <div class="lnodes">
+            <div class="lnode done" onclick="showToast('✅ +20 XP earned!')">⭐</div>
+            <div class="lconn dn"></div>
+            <div class="lnode done" onclick="showToast('✅ +20 XP earned!')">🎯</div>
+            <div class="lconn dn"></div>
+            <div class="lnode done" onclick="showToast('✅ +20 XP earned!')">✅</div>
+            <div class="lconn pd"></div>
+            <div class="lnode curr" onclick="goTo('lesson');sa(null,'lesson')">📖</div>
+            <div class="lconn pd"></div>
+            <div class="lnode lkd" onclick="showToast('🔒 Complete current lesson!')">🔒</div>
+            <div style="height:8px"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="stl">⚡ Quick Actions</div>
+        <div class="qgrid">
+          <div class="qcard gc" onclick="goTo('lesson');sa(null,'lesson')">
+            <span class="qci">🎯</span><div class="qct">Practice</div><div class="qcs">5 mistakes</div>
+          </div>
+          <div class="qcard bc" onclick="showToast('🏆 You\'re #8 this week!')">
+            <span class="qci">🏆</span><div class="qct">Leaderboard</div><div class="qcs">#8 this week</div>
+          </div>
+          <div class="qcard pc" onclick="openChat()">
+            <span class="qci">✦</span><div class="qct">Ask Duo AI</div><div class="qcs">Get instant help</div>
+          </div>
+          <div class="qcard" onclick="goTo('plus');sa(null,'plus')">
+            <span class="qci">⭐</span><div class="qct">Go Plus</div><div class="qcs">Remove ads!</div>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+      </div>
+      <div class="bnav">
+        <div class="ni active" onclick="showToast('🏠 Home')"><div class="nio">🏠</div><div class="nil">Home</div></div>
+        <div class="ni" onclick="goTo('courses');sa(null,'courses')"><div class="nio">🌍</div><div class="nil">Courses</div></div>
+        <div class="ni" onclick="goTo('lesson');sa(null,'lesson')"><div class="nio">📚</div><div class="nil">Learn</div></div>
+        <div class="ni" onclick="goTo('profile');sa(null,'profile')"><div class="nio">👤</div><div class="nil">Profile</div></div>
+        <div class="ni" onclick="goTo('plus');sa(null,'plus')"><div class="nio">⭐</div><div class="nil">Plus</div></div>
+      </div>
+    </div>
+
+    <!-- ══ COURSES (NEW!) ══ -->
+    <div id="sc-courses" class="screen">
+      <div class="cx-hdr">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative;z-index:1">
+          <button class="backbtn" onclick="goTo('home');sa(null,'home')" style="background:rgba(255,255,255,.15);color:white;flex-shrink:0">←</button>
+          <div>
+            <div class="cx-title">Choose a Course</div>
+            <div class="cx-sub">40+ languages · All levels</div>
+          </div>
+        </div>
+        <div class="level-tabs">
+          <div class="ltab active" onclick="filterLevel(this,'all')">All Levels</div>
+          <div class="ltab" onclick="filterLevel(this,'beginner')">🌱 Beginner</div>
+          <div class="ltab" onclick="filterLevel(this,'intermediate')">📈 Intermediate</div>
+          <div class="ltab" onclick="filterLevel(this,'advanced')">🏆 Advanced</div>
+        </div>
+      </div>
+      <div class="sbody">
+        <div class="search-box">
+          <span class="search-ico">🔍</span>
+          <input type="text" class="search-inp" placeholder="Search languages..." oninput="searchLang(this.value)">
+        </div>
+        <div class="stl">🔥 Popular Languages</div>
+        <div class="lang-grid" id="langGrid">
+          <div class="langcard" id="lang-es" onclick="selectLang('es','Spanish','🇪🇸')">
+            <span class="lflag">🇪🇸</span><div class="lname">Spanish</div>
+            <div class="llearners">700M+ learners</div><div class="lpop">⭐ Top Pick</div>
+          </div>
+          <div class="langcard" id="lang-fr" onclick="selectLang('fr','French','🇫🇷')">
+            <span class="lflag">🇫🇷</span><div class="lname">French</div><div class="llearners">250M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-jp" onclick="selectLang('jp','Japanese','🇯🇵')">
+            <span class="lflag">🇯🇵</span><div class="lname">Japanese</div><div class="llearners">180M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-de" onclick="selectLang('de','German','🇩🇪')">
+            <span class="lflag">🇩🇪</span><div class="lname">German</div><div class="llearners">120M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-kr" onclick="selectLang('kr','Korean','🇰🇷')">
+            <span class="lflag">🇰🇷</span><div class="lname">Korean</div><div class="llearners">95M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-hi" onclick="selectLang('hi','Hindi','🇮🇳')">
+            <span class="lflag">🇮🇳</span><div class="lname">Hindi</div><div class="llearners">85M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-zh" onclick="selectLang('zh','Mandarin','🇨🇳')">
+            <span class="lflag">🇨🇳</span><div class="lname">Mandarin</div><div class="llearners">75M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-it" onclick="selectLang('it','Italian','🇮🇹')">
+            <span class="lflag">🇮🇹</span><div class="lname">Italian</div><div class="llearners">60M+ learners</div>
+          </div>
+          <div class="langcard" id="lang-pt" onclick="selectLang('pt','Portuguese','🇧🇷')">
+            <span class="lflag">🇧🇷</span><div class="lname">Portuguese</div><div class="llearners">55M+ learners</div>
+          </div>
+        </div>
+
+        <!-- Learning Path Preview -->
+        <div class="path-preview" id="pathPreview" style="display:none">
+          <div class="pp-title" id="ppTitle">📚 Spanish Learning Path</div>
+          <div class="pp-steps">
+            <div class="pp-step active">
+              <span class="psi">🌱</span>
+              <div><div class="pst">Beginner</div><div class="pss">Greetings, basics, A1</div></div>
+              <div class="psp"><div class="psp-bar"><div class="psp-fill" style="width:80%"></div></div></div>
+            </div>
+            <div class="pp-step">
+              <span class="psi">📘</span>
+              <div><div class="pst">Elementary</div><div class="pss">Conversations, A2</div></div>
+              <div class="psp"><div class="psp-bar"><div class="psp-fill" style="width:40%"></div></div></div>
+            </div>
+            <div class="pp-step">
+              <span class="psi">📈</span>
+              <div><div class="pst">Intermediate</div><div class="pss">Grammar deep dive, B1</div></div>
+              <div class="psp"><div class="psp-bar"><div class="psp-fill" style="width:5%"></div></div></div>
+            </div>
+            <div class="pp-step">
+              <span class="psi">🏆</span>
+              <div><div class="pst">Advanced</div><div class="pss">Fluency & culture, C1</div></div>
+              <div class="psp"><div class="psp-bar"><div class="psp-fill" style="width:0%"></div></div></div>
+            </div>
+          </div>
+          <button class="btn btn-g" style="margin-top:14px" onclick="startCourse()">START THIS COURSE →</button>
+        </div>
+        <div style="height:14px"></div>
+      </div>
+      <div class="bnav">
+        <div class="ni" onclick="goTo('home');sa(null,'home')"><div class="nio">🏠</div><div class="nil">Home</div></div>
+        <div class="ni active"><div class="nio">🌍</div><div class="nil">Courses</div></div>
+        <div class="ni" onclick="goTo('lesson');sa(null,'lesson')"><div class="nio">📚</div><div class="nil">Learn</div></div>
+        <div class="ni" onclick="goTo('profile');sa(null,'profile')"><div class="nio">👤</div><div class="nil">Profile</div></div>
+        <div class="ni" onclick="goTo('plus');sa(null,'plus')"><div class="nio">⭐</div><div class="nil">Plus</div></div>
+      </div>
+    </div>
+
+    <!-- ══ LESSON ══ -->
+    <div id="sc-lesson" class="screen">
+      <div class="ltop">
+        <button class="backbtn" onclick="goTo('home');sa(null,'home')">✕</button>
+        <div class="lpw">
+          <div class="lplbl">Question 2 of 5</div>
+          <div class="lptrack"><div class="lpfill" id="lp" style="--p:40%"></div></div>
+        </div>
+        <div class="hrow"><span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span></div>
+      </div>
+      <div class="sbody">
+        <div class="lbody">
+          <div class="qchip">🌍 TRANSLATE THIS</div>
+          <div class="qti">What does this sentence mean?</div>
+          <div class="cbubble">
+            <div class="cavt">🦜</div>
+            <div>
+              <div class="cnm">Duo says:</div>
+              <div class="ctxt"><span class="hl">"Yo bebo leche"</span><span class="th">Tap to hear pronunciation 🔊</span></div>
+            </div>
+            <button class="abtn" onclick="showToast('🔊 Playing audio...')">🔊</button>
+          </div>
+
+          <!-- AI Hint Box -->
+          <div class="ai-hint-box">
+            <span class="ahico">✦</span>
+            <div class="ahtxt">
+              <div class="ahlbl">Duo AI Hint</div>
+              "Yo" = I · "bebo" = drink · "leche" = milk. Think of "beber" (to drink)!
+            </div>
+          </div>
+
+          <div class="ogrid">
+            <div class="ocard" id="op-a" onclick="selectOpt('a')">I drink milk</div>
+            <div class="ocard" id="op-b" onclick="selectOpt('b')">I eat bread</div>
+            <div class="ocard" id="op-c" onclick="selectOpt('c')">You drink juice</div>
+            <div class="ocard" id="op-d" onclick="selectOpt('d')">She drinks tea</div>
+          </div>
+          <div class="fbar corfb" id="fb-c"><span class="fbico">🎉</span><div class="fbmsg">Correct! <b>"Yo bebo leche"</b> = I drink milk</div></div>
+          <div class="fbar wrgfb" id="fb-w"><span class="fbico">💡</span><div class="fbmsg">Not quite! Answer: <b>I drink milk</b></div></div>
+          <div style="margin-top:auto">
+            <button class="btn btn-g" id="lbtn" onclick="checkAns()" style="opacity:.45;pointer-events:none">CHECK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PROFILE ══ -->
+    <div id="sc-profile" class="screen">
+      <div class="phdr">
+        <div class="phdt">
+          <div class="pavw">
+            <div class="pav">🧑</div>
+            <div class="pinf"><div class="pnm">Anvesh Kumar</div><div class="pun">@anvesh_learns</div><div class="psn">Joined April 2024</div></div>
+          </div>
+          <button class="edbtn" onclick="showToast('✏️ Edit profile')">Edit</button>
+        </div>
+        <div class="lbdg">
+          <span class="lfl">🇪🇸</span>
+          <div class="linf"><div class="lnm">Spanish</div><div class="llv">Intermediate · B1</div></div>
+          <div class="lprog">
+            <div class="lpt"><div class="lpf"></div></div>
+            <div class="lpct">58%</div>
+          </div>
+        </div>
+      </div>
+      <div class="sbody">
+        <div class="srow">
+          <div class="sc or"><div class="sci">🔥</div><div class="scv">47</div><div class="scl">Day Streak</div></div>
+          <div class="sc gr"><div class="sci">⚡</div><div class="scv">1240</div><div class="scl">Total XP</div></div>
+          <div class="sc pp"><div class="sci">💎</div><div class="scv">84</div><div class="scl">Gems</div></div>
+        </div>
+        <div class="scal" style="margin-top:13px">
+          <div class="calh"><div class="calt">🔥 Streak Calendar</div><div class="calm">May 2026</div></div>
+          <div class="calgrid">
+            <div class="cday dn">1</div><div class="cday dn">2</div><div class="cday dn">3</div><div class="cday dn">4</div><div class="cday dn">5</div><div class="cday dn">6</div><div class="cday dn">7</div>
+            <div class="cday dn">8</div><div class="cday dn">9</div><div class="cday dn">10</div><div class="cday dn">11</div><div class="cday dn">12</div><div class="cday dn">13</div><div class="cday dn">14</div>
+            <div class="cday dn">15</div><div class="cday dn">16</div><div class="cday dn">17</div><div class="cday dn">18</div><div class="cday dn">19</div><div class="cday dn">20</div><div class="cday dn">21</div>
+            <div class="cday dn">22</div><div class="cday dn">23</div><div class="cday td">24</div><div class="cday em">25</div><div class="cday em">26</div><div class="cday em">27</div><div class="cday em">28</div>
+            <div class="cday em">29</div><div class="cday em">30</div><div class="cday em">31</div>
+          </div>
+        </div>
+        <div class="stl" style="padding:13px 14px 8px">🏅 Achievements</div>
+        <div class="bdgwrap">
+          <div class="bdggrid">
+            <div class="bdgi" onclick="showToast('🔥 47-day streak!')"><div class="be">🔥</div><div class="bn">Streak King</div></div>
+            <div class="bdgi" onclick="showToast('⚡ 1000+ XP!')"><div class="be">⚡</div><div class="bn">XP Warrior</div></div>
+            <div class="bdgi" onclick="showToast('🏆 Top 10!')"><div class="be">🏆</div><div class="bn">Top 10</div></div>
+            <div class="bdgi lkd" onclick="showToast('🔒 Reach 100 days!')"><div class="be">💎</div><div class="bn">Diamond</div></div>
+          </div>
+        </div>
+        <div class="stl" style="padding:13px 14px 8px">⚙️ Settings</div>
+        <div class="stlist">
+          <div class="sti" onclick="goTo('courses');sa(null,'courses')">
+            <div class="stico" style="background:#e8f5e9">🌍</div>
+            <div class="stxt"><div class="stnm">My Courses</div><div class="stds">Spanish · French · Japanese</div></div>
+            <div class="starr">›</div>
+          </div>
+          <div class="sti" onclick="showToast('🔔 Reminder set!')">
+            <div class="stico" style="background:#fff3e0">🔔</div>
+            <div class="stxt"><div class="stnm">Daily Reminder</div><div class="stds">8:00 PM every day</div></div>
+            <div class="sttog"></div>
+          </div>
+          <div class="sti" onclick="openChat()">
+            <div class="stico" style="background:#f3e5f5">✦</div>
+            <div class="stxt"><div class="stnm">Duo AI Assistant</div><div class="stds">Chat with Duo anytime</div></div>
+            <div class="starr">›</div>
+          </div>
+          <div class="sti" onclick="goTo('plus');sa(null,'plus')">
+            <div class="stico" style="background:#fff8e1">⭐</div>
+            <div class="stxt"><div class="stnm">Upgrade to Plus</div><div class="stds">Remove ads · Unlimited hearts</div></div>
+            <div class="starr">›</div>
+          </div>
+          <div class="sti" onclick="goTo('login');showToast('👋 Logged out!')">
+            <div class="stico" style="background:#fce4ec">🚪</div>
+            <div class="stxt"><div class="stnm">Log Out</div><div class="stds">See you next time!</div></div>
+            <div class="starr">›</div>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+      </div>
+      <div class="bnav">
+        <div class="ni" onclick="goTo('home');sa(null,'home')"><div class="nio">🏠</div><div class="nil">Home</div></div>
+        <div class="ni" onclick="goTo('courses');sa(null,'courses')"><div class="nio">🌍</div><div class="nil">Courses</div></div>
+        <div class="ni" onclick="goTo('lesson');sa(null,'lesson')"><div class="nio">📚</div><div class="nil">Learn</div></div>
+        <div class="ni active"><div class="nio">👤</div><div class="nil">Profile</div></div>
+        <div class="ni" onclick="goTo('plus');sa(null,'plus')"><div class="nio">⭐</div><div class="nil">Plus</div></div>
+      </div>
+    </div>
+
+    <!-- ══ PLUS ══ -->
+    <div id="sc-plus" class="screen">
+      <div class="sbody">
+        <div class="plhero">
+          <button class="plbk" onclick="goTo('home');sa(null,'home')">←</button>
+          <div class="plcrown">⭐</div>
+          <div class="plti">Duolingo Plus</div>
+          <div class="plsb">Supercharge your language learning</div>
+          <div class="pltb">✨ 7-Day Free Trial</div>
+        </div>
+        <div class="ftlist">
+          <div class="fti"><div class="fico" style="background:#fff3e0">❤️</div><div><div class="fnm">Unlimited Hearts</div><div class="fds">Never lose progress</div></div><span class="fchk">✅</span></div>
+          <div class="fti"><div class="fico" style="background:#e8f5e9">🚫</div><div><div class="fnm">Ad-Free</div><div class="fds">Zero interruptions</div></div><span class="fchk">✅</span></div>
+          <div class="fti"><div class="fico" style="background:#e3f2fd">📥</div><div><div class="fnm">Offline Mode</div><div class="fds">Learn without Wi-Fi</div></div><span class="fchk">✅</span></div>
+          <div class="fti"><div class="fico" style="background:#f3e5f5">✦</div><div><div class="fnm">Duo AI Unlimited</div><div class="fds">Unlimited AI conversations</div></div><span class="fchk">✅</span></div>
+        </div>
+        <div class="plcards">
+          <div class="plcard sel" id="pcy" onclick="selPlan('yearly')">
+            <div class="bstv">BEST VALUE</div>
+            <div class="plrow">
+              <div class="plleft"><span class="plradio" id="ry"></span><div><div class="plnm">Yearly</div><div class="plds">₹1499/year · Save 60%</div></div></div>
+              <div class="plpr">₹125<small>/mo</small></div>
+            </div>
+          </div>
+          <div class="plcard" id="pcm" onclick="selPlan('monthly')">
+            <div class="plrow">
+              <div class="plleft"><span class="plradio" id="rm"></span><div><div class="plnm">Monthly</div><div class="plds">Flexible, cancel anytime</div></div></div>
+              <div class="plpr">₹349<small>/mo</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="paysec">
+          <div class="paytl">Payment Method</div>
+          <div class="paymths">
+            <div class="paym active" id="pm-c" onclick="selPay('c')">💳 Card</div>
+            <div class="paym" id="pm-u" onclick="selPay('u')">📱 UPI</div>
+            <div class="paym" id="pm-g" onclick="selPay('g')"><span style="font-weight:900">G</span> Pay</div>
+          </div>
+          <div class="cfields" id="cform">
+            <input class="cinp" placeholder="Card Number" maxlength="19" oninput="fmtCard(this)">
+            <div class="crow"><input class="cinp" placeholder="MM / YY" maxlength="7"><input class="cinp" placeholder="CVV" maxlength="3" type="password"></div>
+            <input class="cinp" placeholder="Name on Card">
+          </div>
+          <div class="secnote"><span>🔒</span><span>256-bit SSL · Encrypted & Secure</span></div>
+          <button class="btn btn-o" onclick="doPay()">START FREE TRIAL ✨</button>
+          <div style="text-align:center;margin-top:9px;font-size:11px;color:var(--g1);font-weight:700;padding-bottom:20px">Cancel anytime · No hidden charges</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FLOATING DUO CHAT ── -->
+    <button class="duo-fab" id="duoFab" onclick="openChat()">
+      🦉
+      <div class="fab-badge" id="fabBadge">1</div>
+    </button>
+
+    <div class="duo-chat" id="duoChat">
+      <div class="dch-hdr">
+        <div class="dch-av">🦉</div>
+        <div><div class="dch-nm">Duo AI</div><div class="dch-st">✦ Online · AI-powered</div></div>
+        <button class="dch-cls" onclick="closeChat()">✕</button>
+      </div>
+      <div class="dch-msgs" id="chatMsgs">
+        <div class="msg duo">¡Hola! I'm Duo 🦉 Your AI language buddy! How can I help you today?</div>
+        <div class="msg duo">Ask me for hints, grammar tips, or just practice conversation! ✨</div>
+      </div>
+      <div class="dch-suggs" id="chatSuggs">
+        <div class="sugg-chip" onclick="sendSugg('Give me a grammar tip')">Grammar tip 📚</div>
+        <div class="sugg-chip" onclick="sendSugg('Practice Spanish with me')">Practice 🎯</div>
+        <div class="sugg-chip" onclick="sendSugg('What\'s my progress?')">My progress 📊</div>
+        <div class="sugg-chip" onclick="sendSugg('Give me a fun fact')">Fun fact ✨</div>
+      </div>
+      <div class="dch-inp-row">
+        <input type="text" class="dch-inp" id="chatInp" placeholder="Ask Duo anything..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="dch-send" onclick="sendMsg()">→</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+var cur='login', selOpt=null, answered=false, chatOpen=false;
+
+var aiReplies = {
+  'grammar tip': '📚 Tip: In Spanish, adjectives come AFTER nouns! "Casa roja" = "Red house". Not "Roja casa"! 🎨',
+  'practice spanish': '¡Vamos! 🎯 Try this: How do you say "I am learning Spanish"? Type it below!',
+  'my progress': '📊 You\'re doing amazing! 47-day streak 🔥 1240 XP ⚡ Top 8% of learners globally! ¡Increíble!',
+  'fun fact': '✨ Fun fact: Spanish is the 2nd most spoken language in the world with 500M+ native speakers! You\'re learning a superpower! 💪',
+  'hint': '💡 Remember: "Yo" = I, "Tú" = You, "Él/Ella" = He/She. These are personal pronouns — memorize them first!',
+  'hello': '¡Hola! 👋 Great to chat! Remember: "Hola" is informal. For formal, say "Buenos días" (Good morning) or "Buenas tardes" (Good afternoon)!',
+  'default': '🦉 Great question! Keep practicing — consistency is the key to fluency. You\'ve got this! ¡Tú puedes!'
+};
+
+function goTo(s){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+  var el=document.getElementById('sc-'+s);
+  if(el)el.classList.add('active');
+  cur=s;
+}
+
+function sa(el,key){
+  document.querySelectorAll('.sni').forEach(i=>{i.classList.remove('active');var d=i.querySelector('.sdot');if(d)d.remove()});
+  if(el){el.classList.add('active');var d=document.createElement('span');d.className='sdot';el.appendChild(d);}
+  else if(key){var m={login:0,home:1,courses:2,lesson:3,profile:4,plus:5};var items=document.querySelectorAll('.sni');if(items[m[key]])items[m[key]].classList.add('active');}
+}
+
+function switchTab(t){
+  document.getElementById('tl').classList.toggle('active',t==='login');
+  document.getElementById('ts').classList.toggle('active',t==='signup');
+  document.getElementById('lf').style.display=t==='login'?'block':'none';
+  document.getElementById('sf').style.display=t==='signup'?'block':'none';
+}
+
+function doLogin(){showToast('✅ Welcome back, Anvesh! 🦉');setTimeout(()=>{goTo('home');sa(null,'home')},800);}
+
+function selectOpt(o){
+  if(answered)return;
+  selOpt=o;
+  document.querySelectorAll('.ocard').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('op-'+o).classList.add('sel');
+  var b=document.getElementById('lbtn');b.style.opacity='1';b.style.pointerEvents='auto';
+}
+
+function checkAns(){
+  if(!selOpt||answered)return;
+  answered=true;
+  document.querySelectorAll('.ocard').forEach(c=>c.style.pointerEvents='none');
+  if(selOpt==='a'){document.getElementById('op-a').classList.add('correct');document.getElementById('fb-c').classList.add('show');document.getElementById('lp').style.setProperty('--p','70%');showToast('🎉 Correct! +15 XP');}
+  else{document.getElementById('op-'+selOpt).classList.add('wrong');document.getElementById('op-a').classList.add('correct');document.getElementById('fb-w').classList.add('show');showToast('💔 -1 Heart');}
+  var b=document.getElementById('lbtn');b.textContent='CONTINUE →';b.onclick=nextQ;
+}
+
+function nextQ(){
+  answered=false;selOpt=null;
+  document.querySelectorAll('.ocard').forEach(c=>{c.classList.remove('sel','correct','wrong');c.style.pointerEvents='auto'});
+  document.getElementById('fb-c').classList.remove('show');document.getElementById('fb-w').classList.remove('show');
+  var b=document.getElementById('lbtn');b.textContent='CHECK';b.style.opacity='.45';b.style.pointerEvents='none';b.onclick=checkAns;
+  document.getElementById('lp').style.setProperty('--p','40%');showToast('🎯 Next question!');
+}
+
+function selectLang(code,name,flag){
+  document.querySelectorAll('.langcard').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('lang-'+code).classList.add('selected');
+  var pp=document.getElementById('pathPreview');
+  pp.style.display='block';pp.style.animation='fup .4s ease';
+  document.getElementById('ppTitle').textContent='📚 '+name+' Learning Path';
+  showToast(flag+' '+name+' selected! Great choice!');
+}
+
+function filterLevel(el,level){
+  document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  showToast('Showing '+(level==='all'?'all levels':level)+' courses');
+}
+
+function searchLang(v){
+  document.querySelectorAll('.langcard').forEach(c=>{
+    var nm=c.querySelector('.lname').textContent.toLowerCase();
+    c.style.display=(!v||nm.includes(v.toLowerCase()))?'flex':'none';
+  });
+}
+
+function startCourse(){showToast('🚀 Course started! Let\'s learn!');setTimeout(()=>{goTo('lesson');sa(null,'lesson')},900);}
+
+function selPlan(p){document.querySelectorAll('.plcard').forEach(c=>c.classList.remove('sel'));document.getElementById('pc'+p[0]).classList.add('sel');}
+function selPay(m){document.querySelectorAll('.paym').forEach(e=>e.classList.remove('active'));document.getElementById('pm-'+m).classList.add('active');if(m!=='c'){document.getElementById('cform').style.display='none';showToast('📱 '+m.toUpperCase()+' selected');}else document.getElementById('cform').style.display='flex';}
+function fmtCard(i){var v=i.value.replace(/\D/g,'').substring(0,16);i.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function doPay(){showToast('🎉 Welcome to Duolingo Plus!');setTimeout(()=>{goTo('home');sa(null,'home')},1400);}
+
+// CHAT
+function openChat(){
+  chatOpen=true;
+  document.getElementById('duoChat').classList.add('open');
+  document.getElementById('fabBadge').style.display='none';
+}
+function closeChat(){chatOpen=false;document.getElementById('duoChat').classList.remove('open');}
+
+function sendSugg(txt){
+  addMsg(txt,'user');
+  document.getElementById('chatSuggs').style.display='none';
+  setTimeout(()=>addDuoReply(txt),800);
+}
+
+function sendMsg(){
+  var inp=document.getElementById('chatInp');
+  var msg=inp.value.trim();if(!msg)return;
+  addMsg(msg,'user');inp.value='';
+  document.getElementById('chatSuggs').style.display='none';
+  setTimeout(()=>addDuoReply(msg),900);
+}
+
+function addMsg(txt,type){
+  var box=document.getElementById('chatMsgs');
+  var d=document.createElement('div');d.className='msg '+type;d.textContent=txt;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+function addDuoReply(userMsg){
+  var box=document.getElementById('chatMsgs');
+  var typing=document.createElement('div');typing.className='msg duo';
+  typing.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  box.appendChild(typing);box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{
+    var reply=getAIReply(userMsg.toLowerCase());
+    typing.innerHTML=reply;
+    box.scrollTop=box.scrollHeight;
+  },1200);
+}
+
+function getAIReply(msg){
+  if(msg.includes('grammar')||msg.includes('tip'))return aiReplies['grammar tip'];
+  if(msg.includes('practice')||msg.includes('español')||msg.includes('spanish'))return aiReplies['practice spanish'];
+  if(msg.includes('progress')||msg.includes('stats'))return aiReplies['my progress'];
+  if(msg.includes('fun')||msg.includes('fact'))return aiReplies['fun fact'];
+  if(msg.includes('hint')||msg.includes('help'))return aiReplies['hint'];
+  if(msg.includes('hola')||msg.includes('hello')||msg.includes('hi'))return aiReplies['hello'];
+  return aiReplies['default'];
+}
+
+var tt;
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
+
+// Init
+goTo('login');sa(null,'login');
+selPlan('yearly');
+</script>
+</body>
+</html>
